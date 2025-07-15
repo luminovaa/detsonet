@@ -1,5 +1,5 @@
 "use client";
-import { ChevronsDown, Github, Menu } from "lucide-react";
+import { ChevronsDown, Github, Menu, Wifi } from "lucide-react";
 import React from "react";
 import {
   Sheet,
@@ -22,16 +22,16 @@ interface RouteProps {
 
 const routeList: RouteProps[] = [
   {
-    href: "#testimonials",
-    label: "Testimonials",
+    href: "#home",
+    label: "Home",
   },
   {
-    href: "#team",
-    label: "Team",
+    href: "#pricing",
+    label: "Harga",
   },
   {
-    href: "#contact",
-    label: "Contact",
+    href: "#area",
+    label: "Area",
   },
   {
     href: "#faq",
@@ -39,81 +39,101 @@ const routeList: RouteProps[] = [
   },
 ];
 
-export const Navbar = () => {
+// Logo Component yang bisa digunakan di kedua header
+const Logo = ({ className = "" }: { className?: string }) => (
+  <Link href="/" className={`font-bold text-lg flex items-center hover:opacity-80 transition-opacity duration-200 ${className}`}>
+    <Wifi className="bg-gradient-to-tr border-secondary from-primary via-primary/70 to-primary rounded-lg w-9 h-9 mr-2 border text-white" />
+    DetsoNet
+  </Link>
+);
+
+// Desktop Header Component
+const DesktopHeader = () => (
+  <header className="hidden md:flex bg-opacity-15 w-full h-16 sticky top-0 border-b-2 border-secondary z-40 justify-between items-center px-6 lg:px-20 xl:px-80 bg-card">
+    <Logo className="ml-4" />
+    
+    <div className="flex items-center gap-4 mr-4">
+      <nav className="flex items-center gap-10">
+        {routeList.map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className="text-base font-medium text-foreground hover:text-primary transition-colors duration-200 hover:scale-105 transform"
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+      
+      <div className="flex items-center gap-2 ml-4">
+        <ToggleTheme />
+      </div>
+    </div>
+  </header>
+);
+
+// Mobile Header Component
+const MobileHeader = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   
   return (
-    <nav className="bg-opacity-15 w-[90%] md:w-full h-16 mx-auto sticky border-b-2 border-secondary z-40 flex justify-between items-center p-2 bg-card md:px-80 ">
-      {/* Logo - Positioned on the left but with better spacing */}
-      <Link href="/" className="font-bold text-lg flex items-center ml-4 hover:opacity-80 transition-opacity duration-200">
-        <ChevronsDown className="bg-gradient-to-tr border-secondary from-primary via-primary/70 to-primary rounded-lg w-9 h-9 mr-2 border text-white" />
-        Shadcn
-      </Link>
-
-      {/* Desktop Menu - Moved to the right */}
-      <div className="hidden md:flex items-center right-0 gap-4 mr-4">
-        <nav className="flex items-center gap-6">
-          {routeList.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-base font-medium text-foreground hover:text-primary transition-colors duration-200 hover:scale-105 transform"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+    <header className="block md:hidden bg-opacity-15 w-full px-10 mx-auto h-16 sticky -top-2 border-b-2 border-secondary z-40 bg-card">
+      <div className="flex justify-between items-center p-2 h-full">
+        <Logo className="ml-2" />
         
-        <div className="flex items-center gap-2 ml-4">
-          <ToggleTheme />
+        <div className="flex items-center mr-2">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Menu
+                onClick={() => setIsOpen(!isOpen)}
+                className="cursor-pointer hover:text-primary transition-colors duration-200"
+              />
+            </SheetTrigger>
+
+            <SheetContent
+              side="right"
+              className="flex flex-col justify-between rounded-tl-2xl rounded-bl-2xl bg-card border-secondary"
+            >
+              <div>
+                <SheetHeader className="mb-4 ml-4">
+                  <SheetTitle className="flex items-center">
+                    <Logo />
+                  </SheetTitle>
+                </SheetHeader>
+
+                <div className="flex flex-col gap-2">
+                  {routeList.map(({ href, label }) => (
+                    <Button
+                      key={href}
+                      onClick={() => setIsOpen(false)}
+                      asChild
+                      variant="ghost"
+                      className="justify-start text-base hover:bg-muted hover:text-primary transition-all duration-200"
+                    >
+                      <Link href={href}>{label}</Link>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <SheetFooter className="flex-col sm:flex-col justify-start items-start">
+                <Separator className="mb-2" />
+                <ToggleTheme />
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-      {/* Mobile Menu - Positioned on the right */}
-      <div className="flex items-center lg:hidden mr-4">
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Menu
-              onClick={() => setIsOpen(!isOpen)}
-              className="cursor-pointer lg:hidden hover:text-primary transition-colors duration-200"
-            />
-          </SheetTrigger>
+    </header>
+  );
+};
 
-          <SheetContent
-            side="right"
-            className="flex flex-col justify-between rounded-tl-2xl rounded-bl-2xl bg-card border-secondary"
-          >
-            <div>
-              <SheetHeader className="mb-4 ml-4">
-                <SheetTitle className="flex items-center">
-                  <Link href="/" className="flex items-center">
-                    <ChevronsDown className="bg-gradient-to-tr border-secondary from-primary via-primary/70 to-primary rounded-lg w-9 h-9 mr-2 border text-white" />
-                    Shadcn
-                  </Link>
-                </SheetTitle>
-              </SheetHeader>
-
-              <div className="flex flex-col gap-2">
-                {routeList.map(({ href, label }) => (
-                  <Button
-                    key={href}
-                    onClick={() => setIsOpen(false)}
-                    asChild
-                    variant="ghost"
-                    className="justify-start text-base hover:bg-muted hover:text-primary transition-all duration-200"
-                  >
-                    <Link href={href}>{label}</Link>
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <SheetFooter className="flex-col sm:flex-col justify-start items-start">
-              <Separator className="mb-2" />
-              <ToggleTheme />
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </nav>
+// Main Navbar Component
+export const Navbar = () => {
+  return (
+    <>
+      <DesktopHeader />
+      <MobileHeader />
+    </>
   );
 };

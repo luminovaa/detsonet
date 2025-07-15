@@ -1,3 +1,4 @@
+'use client';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,7 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, Wifi, Zap, Crown, Users } from "lucide-react";
+import { useState, useEffect } from "react";
 
 enum PopularPlan {
   NO = 0,
@@ -18,122 +20,224 @@ interface PlanProps {
   title: string;
   popular: PopularPlan;
   price: number;
+  speed: string;
   description: string;
   buttonText: string;
   benefitList: string[];
+  icon: React.ReactNode;
+  gradient: string;
 }
 
 const plans: PlanProps[] = [
   {
-    title: "Free",
+    title: "Paket Basic",
     popular: 0,
-    price: 0,
-    description:
-      "Lorem ipsum dolor sit, amet ipsum consectetur adipisicing elit.",
-    buttonText: "Start Free Trial",
+    price: 150000,
+    speed: "10 Mbps",
+    description: "Cocok untuk kebutuhan browsing dan streaming ringan sehari-hari",
+    buttonText: "Pilih Paket",
+    icon: <Wifi className="w-8 h-8" />,
+    gradient: "from-blue-500 to-cyan-500",
     benefitList: [
-      "1 team member",
-      "1 GB storage",
-      "Upto 2 pages",
-      "Community support",
-      "AI assistance",
+      "Kecepatan 10 Mbps",
+      "Unlimited quota",
+      "Gratis instalasi",
+      "Support 24/7",
+      "Cocok untuk 2-3 device",
     ],
   },
   {
-    title: "Premium",
+    title: "Paket Premium",
     popular: 1,
-    price: 45,
-    description:
-      "Lorem ipsum dolor sit, amet ipsum consectetur adipisicing elit.",
-    buttonText: "Get starterd",
+    price: 250000,
+    speed: "20 Mbps",
+    description: "Ideal untuk keluarga dengan kebutuhan streaming dan gaming",
+    buttonText: "Pilih Paket Terbaik",
+    icon: <Zap className="w-8 h-8" />,
+    gradient: "from-blue-500 to-cyan-500",
     benefitList: [
-      "4 team member",
-      "8 GB storage",
-      "Upto 6 pages",
+      "Kecepatan 20 Mbps",
+      "Unlimited quota",
+      "Gratis instalasi",
       "Priority support",
-      "AI assistance",
+      "Cocok untuk 4-6 device",
     ],
   },
   {
-    title: "Enterprise",
+    title: "Paket Enterprise",
     popular: 0,
-    price: 120,
-    description:
-      "Lorem ipsum dolor sit, amet ipsum consectetur adipisicing elit.",
-    buttonText: "Contact US",
+    price: 400000,
+    speed: "30 Mbps",
+    description: "Solusi terbaik untuk bisnis dan kebutuhan bandwidth tinggi",
+    buttonText: "Hubungi Sales",
+    icon: <Crown className="w-8 h-8" />,
+    gradient: "from-blue-500 to-cyan-500",
     benefitList: [
-      "10 team member",
-      "20 GB storage",
-      "Upto 10 pages",
-      "Phone & email support",
-      "AI assistance",
+      "Kecepatan 30 Mbps",
+      "Unlimited quota",
+      "Gratis instalasi",
+      "Dedicated support",
+      "Cocok untuk 8+ device",
     ],
   },
 ];
 
 export const PricingSection = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const section = document.getElementById('pricing-section');
+    if (section) {
+      observer.observe(section);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
-    <section className="container py-24 sm:py-32">
-      <h2 className="text-lg text-primary text-center mb-2 tracking-wider">
-        Pricing
-      </h2>
+    <section id="pricing" className="container py-24 sm:py-32">
+      {/* Header with animation */}
+      <div className={`text-center transform transition-all duration-1000 ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+      }`}>
+        <div className="inline-flex items-center bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent text-lg font-semibold mb-2 tracking-wider">
+          <Wifi className="w-5 h-5 mr-2 text-blue-500" />
+          Paket Internet
+        </div>
 
-      <h2 className="text-3xl md:text-4xl text-center font-bold mb-4">
-        Get unlimitted access
-      </h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          Pilih Paket Internet
+          <span className="block text-transparent bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text">
+            Sesuai Kebutuhan Anda
+          </span>
+        </h2>
 
-      <h3 className="md:w-1/2 mx-auto text-xl text-center text-muted-foreground pb-14">
-        Lorem ipsum dolor sit amet consectetur adipisicing reiciendis.
-      </h3>
+        <p className="md:w-1/2 mx-auto text-xl text-muted-foreground pb-14">
+          Nikmati koneksi internet fiber optik super cepat dengan harga terjangkau. 
+          Semua paket sudah termasuk unlimited quota dan gratis instalasi.
+        </p>
+      </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-4">
-        {plans.map(
-          ({ title, popular, price, description, buttonText, benefitList }) => (
+      {/* Cards Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6">
+        {plans.map(({ title, popular, price, speed, description, buttonText, benefitList, icon, gradient }, index) => (
+          <div
+            key={title}
+            className={`transform transition-all duration-1000 ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+            }`}
+            style={{ transitionDelay: `${index * 200}ms` }}
+            onMouseEnter={() => setHoveredCard(title)}
+            onMouseLeave={() => setHoveredCard(null)}
+          >
             <Card
-              key={title}
-              className={
-                popular === PopularPlan?.YES
-                  ? "drop-shadow-xl shadow-black/10 dark:shadow-white/10 border-[1.5px] border-primary lg:scale-[1.1]"
-                  : ""
-              }
+              className={`relative overflow-hidden transition-all duration-500 hover:shadow-2xl ${
+                popular === PopularPlan.YES
+                  ? "border-2 border-purple-500 shadow-purple-500/20 lg:scale-[1.05] shadow-2xl"
+                  : "hover:border-primary/50"
+              } ${
+                hoveredCard === title ? 'scale-105 shadow-xl' : ''
+              }`}
             >
-              <CardHeader>
-                <CardTitle className="pb-2">{title}</CardTitle>
+              {/* Popular Badge */}
+              {popular === PopularPlan.YES && (
+                <div className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1 rounded-bl-lg text-sm font-medium shadow-lg">
+                  <div className="flex items-center">
+                    <Crown className="w-4 h-4 mr-1" />
+                    Terpopuler
+                  </div>
+                </div>
+              )}
 
-                <CardDescription className="pb-4">
+              {/* Background Gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5`} />
+
+              <CardHeader className="relative">
+                {/* Icon with gradient background */}
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${gradient} text-white mb-4 shadow-lg`}>
+                  {icon}
+                </div>
+
+                <CardTitle className="text-xl font-bold mb-2">{title}</CardTitle>
+                
+                <CardDescription className="text-sm text-muted-foreground mb-4">
                   {description}
                 </CardDescription>
 
-                <div>
-                  <span className="text-3xl font-bold">${price}</span>
-                  <span className="text-muted-foreground"> /month</span>
+                {/* Speed Badge */}
+                <div className={`inline-flex items-center bg-gradient-to-r ${gradient} text-white px-3 py-1 rounded-full text-sm font-medium mb-4 shadow-md`}>
+                  <Zap className="w-4 h-4 mr-1" />
+                  {speed}
+                </div>
+
+                {/* Price */}
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold">{formatPrice(price)}</span>
+                  <span className="text-muted-foreground text-sm ml-1">/bulan</span>
                 </div>
               </CardHeader>
 
-              <CardContent className="flex">
-                <div className="space-y-4">
-                  {benefitList.map((benefit) => (
-                    <span key={benefit} className="flex">
-                      <Check className="text-primary mr-2" />
-                      <h3>{benefit}</h3>
-                    </span>
+              <CardContent className="relative">
+                <div className="space-y-3">
+                  {benefitList.map((benefit, benefitIndex) => (
+                    <div
+                      key={benefit}
+                      className={`flex items-center transform transition-all duration-500 ${
+                        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-5 opacity-0'
+                      }`}
+                      style={{ transitionDelay: `${(index * 200) + (benefitIndex * 100)}ms` }}
+                    >
+                      <div className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-r ${gradient} flex items-center justify-center mr-3`}>
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-sm">{benefit}</span>
+                    </div>
                   ))}
                 </div>
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="relative">
                 <Button
-                  variant={
-                    popular === PopularPlan?.YES ? "default" : "secondary"
-                  }
-                  className="w-full"
+                  className={`w-full font-semibold transition-all duration-300 ${
+                    popular === PopularPlan.YES
+                      ? `bg-gradient-to-r ${gradient} hover:shadow-lg hover:shadow-purple-500/25 text-white border-0`
+                      : "hover:shadow-lg"
+                  }`}
+                  variant={popular === PopularPlan.YES ? "default" : "outline"}
                 >
                   {buttonText}
+                  {popular === PopularPlan.YES && (
+                    <Crown className="w-4 h-4 ml-2" />
+                  )}
                 </Button>
               </CardFooter>
+
+              {/* Hover Effect */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 transition-opacity duration-500 pointer-events-none ${
+                hoveredCard === title ? 'opacity-5' : ''
+              }`} />
             </Card>
-          )
-        )}
+          </div>
+        ))}
       </div>
     </section>
   );

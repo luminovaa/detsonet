@@ -1,117 +1,84 @@
 import { Separator } from "@/components/ui/separator";
-import { ChevronsDownIcon } from "lucide-react";
+import { 
+  Wifi, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Clock,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Shield,
+  Users,
+  Headphones
+} from "lucide-react";
 import Link from "next/link";
 
 export const FooterSection = () => {
   return (
-    <footer id="footer" className="container py-24 sm:py-32">
-      <div className="p-10 bg-card border border-secondary rounded-2xl">
-        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-x-12 gap-y-8">
-          <div className="col-span-full xl:col-span-2">
-            <Link href="#" className="flex font-bold items-center">
-              <ChevronsDownIcon className="w-9 h-9 mr-2 bg-gradient-to-tr from-primary via-primary/70 to-primary rounded-lg border border-secondary" />
-
-              <h3 className="text-2xl">Shadcn</h3>
-            </Link>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Contact</h3>
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Github
-              </Link>
+    <footer id="footer" className="container ">
+      <div className="p-10  rounded-2xl">
+        <div className="pt-6 border-t border-secondary">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            {/* Social Media */}
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium">Follow us:</span>
+              <div className="flex gap-2">
+                <Link href="#" className="p-2 rounded-lg border border-secondary hover:bg-primary hover:text-white transition-colors">
+                  <Facebook className="w-4 h-4" />
+                </Link>
+                <Link href="#" className="p-2 rounded-lg border border-secondary hover:bg-primary hover:text-white transition-colors">
+                  <Twitter className="w-4 h-4" />
+                </Link>
+                <Link href="#" className="p-2 rounded-lg border border-secondary hover:bg-primary hover:text-white transition-colors">
+                  <Instagram className="w-4 h-4" />
+                </Link>
+                <Link href="#" className="p-2 rounded-lg border border-secondary hover:bg-primary hover:text-white transition-colors">
+                  <Linkedin className="w-4 h-4" />
+                </Link>
+                <Link href="#" className="p-2 rounded-lg border border-secondary hover:bg-primary hover:text-white transition-colors">
+                  <Youtube className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
 
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Twitter
+            {/* Quick Actions */}
+            <div className="flex items-center gap-2">
+              <Link href="#" className="flex items-center gap-1 px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors">
+                <Users className="w-4 h-4" />
+                Customer Service
               </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Instagram
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Platforms</h3>
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                iOS
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Android
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Web
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Help</h3>
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Contact Us
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                FAQ
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Feedback
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Socials</h3>
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Twitch
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Discord
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Dribbble
+              <Link href="#" className="flex items-center gap-1 px-3 py-1 text-sm border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+                <Headphones className="w-4 h-4" />
+                Support Service
               </Link>
             </div>
           </div>
         </div>
 
         <Separator className="my-6" />
-        <section className="">
-          <h3 className="">
-            &copy; 2024 Designed and developed by
-            <Link
-              target="_blank"
-              href="https://github.com/leoMirandaa"
-              className="text-primary transition-all border-primary hover:border-b-2 ml-1"
-            >
-              Leo Miranda
-            </Link>
-          </h3>
+        
+        {/* Bottom Section */}
+        <section className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-muted-foreground">
+            <p>&copy; 2025 DetsoNet. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <Link href="#" className="hover:text-primary transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="#" className="hover:text-primary transition-colors">
+                Terms of Service
+              </Link>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm">
+            <Shield className="w-4 h-4 text-green-500" />
+            <span className="text-muted-foreground">SSL Secured</span>
+          </div>
         </section>
       </div>
     </footer>
