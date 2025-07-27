@@ -10,15 +10,7 @@ export default function Home() {
   return (
     <>
       <HeroSection />
-      {/* <SponsorsSection /> */}
-      {/* <BenefitsSection />
-      <FeaturesSection />
-      <ServicesSection />
-      <TestimonialSection />
-      <TeamSection />
-      <CommunitySection /> */}
       <PricingSection />
-      {/* <ContactSection /> */}
       <CoverageAreaSection />
       <FAQSection />
       <FooterSection />

@@ -26,7 +26,7 @@ const routeList: RouteProps[] = [
     label: "Home",
   },
   {
-    href: "#pricing",
+    href: "#pricing-section",
     label: "Harga",
   },
   {
@@ -34,7 +34,7 @@ const routeList: RouteProps[] = [
     label: "Area",
   },
   {
-    href: "#faq",
+    href: "#faq-section",
     label: "FAQ",
   },
 ];

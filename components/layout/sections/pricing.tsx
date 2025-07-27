@@ -114,7 +114,7 @@ export const PricingSection = () => {
   };
 
   return (
-    <section id="pricing" className="container py-24 sm:py-32">
+    <section id="pricing-section" className="container py-24 sm:py-32">
       {/* Header with animation */}
       <div className={`text-center transform transition-all duration-1000 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
