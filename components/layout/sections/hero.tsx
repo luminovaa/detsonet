@@ -33,13 +33,13 @@ export const HeroSection = () => {
             }`}
           >
             <Badge variant="outline" className="text-sm py-2 px-4">
-              <span className="mr-2 text-primary">
+              {/* <span className="mr-2 text-primary">
                 <Badge className="bg-green-500">
                   <Wifi className="w-3 h-3 mr-1" />
                   Aktif
                 </Badge>
-              </span>
-              <span>Jaringan Fiber Optik Terbaru!</span>
+              </span> */}
+              <span>Selamat Datang Di DETSO.NET!</span>
             </Badge>
           </div>
 
@@ -50,19 +50,19 @@ export const HeroSection = () => {
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
               }`}
             >
-              Internet Super Cepat
+              KUOTA HEMAT
               <span className="block text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text">
-                Untuk Semua Kebutuhan
+                SOLUSI INTERNET TEPAT
               </span>
             </h1>
             
             <p 
-              className={`text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed transform transition-all duration-700 delay-300 ${
+              className={`text-lg 
+                text-muted-foreground max-w-lg leading-relaxed transform transition-all duration-700 delay-300 ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
               }`}
             >
-              Nikmati koneksi internet fiber optik hingga 1 Gbps dengan stabilitas tinggi, 
-              harga terjangkau, dan layanan pelanggan 24/7. Cocok untuk rumah, kantor, dan bisnis.
+              DETSO. NET Merupakan solusi tepat untuk kebutuhan internet, Nikmati koneksi internet fiber optic hingga 1 Gbps dengan stabilitas tinggi, Harga terjangkau dan layanan 24/7. Cocok untuk Rumah, kantor, Bisnis dan Sekolah.
             </p>
           </div>
 
@@ -111,14 +111,14 @@ export const HeroSection = () => {
 
           {/* Stats with animation */}
           <div 
-            className={`grid grid-cols-3 gap-6 pt-6 border-t border-muted transform transition-all duration-700 delay-600 ${
+            className={`grid grid-cols-2 gap-6 pt-6 border-t border-muted transform transition-all duration-700 delay-600 ${
               isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
           >
-            <div className="text-center">
+            {/* <div className="text-center">
               <div className="text-2xl font-bold text-primary">300+</div>
               <div className="text-sm text-muted-foreground">Pelanggan Aktif</div>
-            </div>
+            </div> */}
             <div className="text-center">
               <div className="text-2xl font-bold text-primary">99.9%</div>
               <div className="text-sm text-muted-foreground">Uptime</div>

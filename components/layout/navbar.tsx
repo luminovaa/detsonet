@@ -12,7 +12,6 @@ import {
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import Image from "next/image";
 import { ToggleTheme } from "./toogle-theme";
 
 interface RouteProps {
