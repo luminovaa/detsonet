@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 const logoData = [
   { name: "Iforte Indonesia", logo: "/iforte.png" },
-  { name: "MGS", logo: "/logo_mgs.png" },
+  { name: "MGS", logo: "/mgs.png" },
   { name: "DetsoNet", logo: "/logo.png" },
 ];
 
