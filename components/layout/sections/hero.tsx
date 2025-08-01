@@ -93,7 +93,9 @@ export const HeroSection = () => {
             }`}
           >
             <Button size="lg" className="font-bold group/arrow bg-gradient-to-r from-primary to-purple-600 hover:from-blue-600 hover:to-purple-700">
+              <Link href="https://wa.me/6289685402863" target="_blank">
               Berlangganan Detsonet Sekarang
+              </Link>
               <ArrowRight className="size-5 ml-2 group-hover/arrow:translate-x-1 transition-transform" />
             </Button>
 
@@ -103,7 +105,7 @@ export const HeroSection = () => {
               size="lg"
               className="font-bold border-2 hover:bg-muted/50"
             >
-              <Link href="#paket" className="flex items-center">
+              <Link href="#pricing-section" className="flex items-center">
                 Lihat Paket Internet
               </Link>
             </Button>

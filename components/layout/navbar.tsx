@@ -13,6 +13,7 @@ import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { ToggleTheme } from "./toogle-theme";
+import Image from "next/image";
 
 interface RouteProps {
   href: string;
@@ -22,7 +23,7 @@ interface RouteProps {
 const routeList: RouteProps[] = [
   {
     href: "#home",
-    label: "Home",
+    label: "Beranda",
   },
   {
     href: "#pricing-section",
@@ -38,11 +39,9 @@ const routeList: RouteProps[] = [
   },
 ];
 
-// Logo Component yang bisa digunakan di kedua header
 const Logo = ({ className = "" }: { className?: string }) => (
   <Link href="/" className={`font-bold text-lg flex items-center hover:opacity-80 transition-opacity duration-200 ${className}`}>
-    <Wifi className="bg-gradient-to-tr border-secondary from-primary via-primary/70 to-primary rounded-lg w-9 h-9 mr-2 border text-white" />
-    DetsoNet
+    <Image src="/logo.png" alt="Detsonet Logo" width={100} height={100}/>
   </Link>
 );
 

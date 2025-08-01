@@ -147,7 +147,7 @@ export const CoverageAreaSection = () => {
   ];
 
   return (
-    <section id="area" className="py-20 bg-gradient-to-b from-background to-muted/20">
+    <section id="area" className="py-20 to-muted/20">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}

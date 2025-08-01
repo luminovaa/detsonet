@@ -47,13 +47,9 @@ export const FooterSection = () => {
 
             {/* Quick Actions */}
             <div className="flex items-center gap-2">
-              <Link href="#" className="flex items-center gap-1 px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors">
+              <Link href="https://wa.me/6289685402863" className="flex items-center gap-1 px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors">
                 <Users className="w-4 h-4" />
                 Customer Service
-              </Link>
-              <Link href="#" className="flex items-center gap-1 px-3 py-1 text-sm border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
-                <Headphones className="w-4 h-4" />
-                Support Service
               </Link>
             </div>
           </div>
