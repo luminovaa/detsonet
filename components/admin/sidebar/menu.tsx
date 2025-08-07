@@ -1,9 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Ellipsis, LogOut, ChevronDown, ChevronRight } from "lucide-react";
+import { 
+  LogOut, 
+  User, 
+  Settings, 
+  ChevronDown, 
+  ChevronRight,
+  Ellipsis 
+} from "lucide-react";
 import { usePathname } from "next/navigation";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,11 +17,20 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-  TooltipProvider
+  TooltipProvider,
 } from "@/components/ui/tooltip";
-import { getMenuList } from "./menu-list";
 import { CollapseMenuButton } from "./collpase-menu";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { getMenuList } from "./menu-list";
+import { useAuth } from "../context/auth-provider";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -23,6 +38,7 @@ interface MenuProps {
 
 export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
+  const { user, logout } = useAuth(); 
   const menuList = getMenuList(pathname);
 
   return (
@@ -36,7 +52,7 @@ export function Menu({ isOpen }: MenuProps) {
                   <p className="text-xs font-semibold uppercase tracking-wider truncate">
                     {groupLabel}
                   </p>
-                  <Separator className="ml-2 flex-1 " />
+                  <Separator className="ml-2 flex-1" />
                 </div>
               ) : !isOpen && isOpen !== undefined && groupLabel ? (
                 <TooltipProvider>
@@ -63,8 +79,7 @@ export function Menu({ isOpen }: MenuProps) {
                           <TooltipTrigger asChild>
                             <Button
                               variant={
-                                (active === undefined &&
-                                  pathname.startsWith(href)) ||
+                                (active === undefined && pathname.startsWith(href)) ||
                                 active
                                   ? "default"
                                   : "ghost"
@@ -126,39 +141,105 @@ export function Menu({ isOpen }: MenuProps) {
               )}
             </li>
           ))}
+
+          {/* User Dropdown */}
           <li className="w-full grow flex items-end mb-4">
-            <TooltipProvider disableHoverableContent>
-              <Tooltip delayDuration={100}>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => {}}
-                    variant="ghost"
-                    className={cn(
-                      "w-full justify-start h-10 mt-4 ",
-                      "hover:bg-destructive/5 hover:text-destructive",
-                      isOpen === false ? "justify-center" : ""
+            {user ? (
+              <DropdownMenu>
+                <TooltipProvider disableHoverableContent>
+                  <Tooltip delayDuration={100}>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start h-10 mt-4 group",
+                            "hover:bg-accent hover:text-accent-foreground",
+                            isOpen === false ? "justify-center" : ""
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "flex items-center justify-center",
+                              isOpen === false ? "mx-auto" : "mr-3"
+                            )}
+                          >
+                            <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
+                              <User className="w-4 h-4 text-primary" />
+                            </div>
+                          </div>
+                          <div
+                            className={cn(
+                              "flex flex-col items-start max-w-[180px] truncate",
+                              isOpen === false ? "opacity-0 hidden" : "opacity-100"
+                            )}
+                          >
+                            <span className="text-sm font-medium truncate">
+                              {user.profile?.full_name || user.username || user.email}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate">
+                              {user.email}
+                            </span>
+                          </div>
+                          <ChevronRight
+                            className={cn(
+                              "ml-auto transition-transform duration-200",
+                              "group-hover:rotate-90",
+                              isOpen === false ? "opacity-0" : "opacity-100"
+                            )}
+                          />
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    {isOpen === false && (
+                      <TooltipContent side="right" className="bg-foreground text-background">
+                        {user.profile?.full_name || user.username}
+                      </TooltipContent>
                     )}
+                  </Tooltip>
+                </TooltipProvider>
+
+                <DropdownMenuContent
+                  align="end"
+                  side="right"
+                  sideOffset={5}
+                  className="w-56"
+                >
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/settings">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      logout();
+                    }}
+                    className="text-destructive focus:text-destructive"
                   >
-                    <span className={cn(isOpen === false ? "" : "mr-3")}>
-                      <LogOut size={18} />
-                    </span>
-                    <p
-                      className={cn(
-                        "whitespace-nowrap",
-                        isOpen === false ? "opacity-0 hidden" : "opacity-100"
-                      )}
-                    >
-                      Sign out
-                    </p>
-                  </Button>
-                </TooltipTrigger>
-                {isOpen === false && (
-                  <TooltipContent side="right" className="bg-foreground text-background">
-                    Sign out
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                className="w-full justify-start h-10 mt-4"
+                asChild
+              >
+                <Link href="/admin/sign-in">Sign In</Link>
+              </Button>
+            )}
           </li>
         </ul>
       </nav>

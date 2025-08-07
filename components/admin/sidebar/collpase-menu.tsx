@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, Dot, LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -54,6 +54,12 @@ export function CollapseMenuButton({
     submenu.active === undefined ? submenu.href === pathname : submenu.active
   );
   const [isCollapsed, setIsCollapsed] = useState<boolean>(isSubmenuActive);
+
+  useEffect(() => {
+  if (!isOpen) {
+    setIsCollapsed(false);
+  }
+}, [isOpen]);
 
   return isOpen ? (
     <Collapsible
@@ -137,6 +143,7 @@ export function CollapseMenuButton({
       <TooltipProvider disableHoverableContent>
         <Tooltip delayDuration={100}>
           <TooltipTrigger asChild>
+            <div>
             <DropdownMenuTrigger asChild>
               <Button
                 variant={isSubmenuActive ? "secondary" : "ghost"}
@@ -159,6 +166,7 @@ export function CollapseMenuButton({
                 </div>
               </Button>
             </DropdownMenuTrigger>
+            </div>
           </TooltipTrigger>
           <TooltipContent side="right" align="start" alignOffset={2}>
             {label}

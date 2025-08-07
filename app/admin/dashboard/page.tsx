@@ -1,4 +1,4 @@
-import AdminPanelLayout from "@/components/admin/layout";
+import AdminPanelLayout from "@/components/admin/admin-layout";
 import React from "react";
 
 function Dashboard() {
