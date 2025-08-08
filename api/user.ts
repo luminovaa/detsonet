@@ -1,12 +1,19 @@
 import service from "@/services/services";
 
-export function getUsers() {
-    return service({
-        url: '/user',
-        method: 'get'
-    })
+interface GetUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
 }
 
+export function getUsers(params?: GetUsersParams) {
+  return service({
+    url: '/user',
+    method: 'get',
+    params,
+  });
+}
 export function getUserById(id: string) {
     return service({
         url: `/user/${id}`,

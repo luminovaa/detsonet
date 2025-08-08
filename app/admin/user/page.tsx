@@ -1,89 +1,173 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AdminPanelLayout from "@/components/admin/admin-layout";
+import { getUsers } from "@/api/user";
+import { User } from "@/types/user.types";
+import { useDebounce } from "@/hooks/use-debounce";
+import { Pagination, PaginationMeta } from "@/components/admin/table/reusable-pagination";
+import { ColumnDef, DataTable } from "@/components/admin/table/reusable-table";
+import { RoleBadge } from "@/components/admin/role-badge";
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-interface UserTableProps {
+interface UsersResponse {
   users: User[];
-  perPage?: number;
+  pagination: PaginationMeta;
 }
 
-const dummyUsers = Array.from({ length: 23 }, (_, i) => ({
-  id: i + 1,
-  name: `User ${i + 1}`,
-  email: `user${i + 1}@example.com`,
-}));
+function UserTable() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentPage = parseInt(searchParams.get('page') || '1');
 
-function UserTable({ users = dummyUsers, perPage = 5 }: UserTableProps) {
-  const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(users.length / perPage);
+  const limit = parseInt(searchParams.get('limit') || '10');
+  const urlSearch = searchParams.get('search') || '';
+  
+  const [searchInput, setSearchInput] = useState(urlSearch);
+  const debouncedSearch = useDebounce(searchInput, 500);
+  
+  const [users, setUsers] = useState<User[]>([]);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const start = (page - 1) * perPage;
-  const paginatedUsers = users.slice(start, start + perPage);
+  const columns: ColumnDef<User>[] = [
+    {
+      header: 'Nama',
+      cell: (user) => user.profile?.full_name || '-'
+    },
+    {
+      accessorKey: 'username',
+      header: 'Username'
+    },
+    {
+      accessorKey: 'email',
+      header: 'Email'
+    },
+    {
+      header: 'Role',
+      cell: (user) => <RoleBadge role={user.role} />
+    }
+  ];
+
+  // Update URL parameters
+  const updateSearchParams = (newParams: Record<string, string | number>) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value) {
+        current.set(key, value.toString());
+      } else {
+        current.delete(key);
+      }
+    });
+    
+    const search = current.toString();
+    const query = search ? `?${search}` : '';
+    router.push(`${window.location.pathname}${query}`);
+  };
+
+  // Fetch users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const params = {
+          page: currentPage,
+          limit,
+          ...(urlSearch && { search: urlSearch }),
+        };
+        
+        const response = await getUsers(params);
+        const data: UsersResponse = response.data.data;
+        
+        setUsers(data.users);
+        setPagination(data.pagination);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [currentPage, limit, urlSearch]);
+
+  // Sync search input with URL parameter on mount
+  useEffect(() => {
+    setSearchInput(urlSearch);
+  }, [urlSearch]);
+
+  // Update URL when debounced search changes
+  useEffect(() => {
+    if (debouncedSearch !== urlSearch) {
+      updateSearchParams({
+        page: 1,
+        limit,
+        search: debouncedSearch,
+      });
+    }
+  }, [debouncedSearch, urlSearch, limit]);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    updateSearchParams({
+      page,
+      limit,
+      ...(urlSearch && { search: urlSearch }),
+    });
+  };
+
+  if (loading && !users.length) {
+    return (
+      <AdminPanelLayout 
+        title="Daftar Pengguna"
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
+        searchPlaceholder="Cari pengguna..."
+      >
+        <DataTable
+          columns={columns}
+          data={[]}
+          loading={true}
+          showIndex={true}
+          indexStartFrom={((currentPage - 1) * limit) + 1}
+        />
+      </AdminPanelLayout>
+    );
+  }
 
   return (
-    <AdminPanelLayout>
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-100">
-              <TableHead>ID</TableHead>
-              <TableHead>Nama</TableHead>
-              <TableHead>Email</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedUsers.map((user) => (
-              <TableRow key={user.id} className="hover:bg-gray-50">
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+    <AdminPanelLayout 
+      title="Daftar Pengguna"
+      searchValue={searchInput}
+      onSearchChange={setSearchInput}
+      searchPlaceholder="Cari pengguna..."
+    >
+      <div className="space-y-4">
+        <DataTable
+          columns={columns}
+          data={users}
+          loading={loading}
+          emptyMessage="Tidak ada data"
+          emptySearchMessage="Tidak ada data yang ditemukan"
+          hasSearch={!!urlSearch}
+          showIndex={true}
+          indexStartFrom={((currentPage - 1) * limit) + 1}
+        />
 
-        <div className="flex items-center justify-between mt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Sebelumnya
-          </Button>
-
-          <span className="text-sm text-gray-600">
-            Halaman {page} dari {totalPages}
-          </span>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={page === totalPages}
-          >
-            Selanjutnya
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </Button>
-        </div>
+        {pagination && (
+          <Pagination
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            showDataCount={true}
+            dataCountText={{
+              showing: "Menampilkan",
+              of: "dari",
+              data: "data"
+            }}
+          />
+        )}
+      </div>
     </AdminPanelLayout>
   );
 }

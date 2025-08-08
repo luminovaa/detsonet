@@ -1,34 +1,27 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const publicRoutes = ['/', '/admin/sign-in'];
 const adminPrefix = '/admin';
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
   const pathname = request.nextUrl.pathname;
 
-  const redirectToLogin = () => {
-    const loginUrl = new URL('/admin/sign-in', request.url);
-    return NextResponse.redirect(loginUrl);
-  };
-
-  const redirectToDashboard = () => {
-    const dashboardUrl = new URL('/admin/dashboard', request.url);
-    return NextResponse.redirect(dashboardUrl);
-  };
-
-  // Jika sudah login, cegah akses ke sign-in
+  // Redirect ke dashboard jika sudah login dan mengakses login page
   if (pathname === '/admin/sign-in' && token) {
-    return redirectToDashboard();
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
-  // Untuk rute admin: wajib ada token
+  // Jika akses route admin
   if (pathname.startsWith(adminPrefix) && !publicRoutes.includes(pathname)) {
-    if (!token) {
-      return redirectToLogin();
+    // Jika tidak ada access token, cek apakah ada refresh token untuk coba verifikasi
+    if (!token && !refreshToken) {
+      return NextResponse.redirect(new URL('/admin/sign-in', request.url));
     }
-    // Tidak verifikasi isi token — biarkan backend handle 401
+
+    // Jika ada refreshToken tapi tidak ada accessToken, biarkan frontend handle refresh
+    // Tapi tetap izinkan request lewat ke frontend
     return NextResponse.next();
   }
 

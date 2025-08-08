@@ -88,7 +88,7 @@ export function Menu({ isOpen }: MenuProps) {
                                 "w-full justify-start h-10 mb-1 transition-all",
                                 "hover:bg-primary/10 hover:text-primary",
                                 (active === undefined && pathname.startsWith(href)) || active
-                                  ? "bg-primary/5 text-primary font-medium"
+                                  ? "bg-primary/5 text-primary font-medium rounded-3xl"
                                   : ""
                               )}
                               asChild
