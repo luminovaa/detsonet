@@ -4,8 +4,7 @@ import Link from "next/link";
 import { 
   LogOut, 
   User, 
-  Settings, 
-  ChevronDown, 
+  Settings,  
   ChevronRight,
   Ellipsis 
 } from "lucide-react";
@@ -86,7 +85,7 @@ export function Menu({ isOpen }: MenuProps) {
                               }
                               className={cn(
                                 "w-full justify-start h-10 mb-1 transition-all",
-                                "hover:bg-primary/10 hover:text-primary",
+                                "hover:bg-primary/10 hover:text-primary hover:rounded-3xl",
                                 (active === undefined && pathname.startsWith(href)) || active
                                   ? "bg-primary/5 text-primary font-medium rounded-3xl"
                                   : ""
@@ -153,8 +152,8 @@ export function Menu({ isOpen }: MenuProps) {
                         <Button
                           variant="ghost"
                           className={cn(
-                            "w-full justify-start h-10 mt-4 group",
-                            "hover:bg-accent hover:text-accent-foreground",
+                            "w-full justify-start rounded-3xl h-10 mt-4 group",
+                            "hover:bg-primary/10 hover:text-accent-foreground",
                             isOpen === false ? "justify-center" : ""
                           )}
                         >
@@ -203,20 +202,14 @@ export function Menu({ isOpen }: MenuProps) {
                   align="end"
                   side="right"
                   sideOffset={5}
-                  className="w-56"
+                  className="w-56 rounded-3xl"
                 >
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="rounded-3xl">
                     <Link href="/admin/profile">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin/settings">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -224,7 +217,7 @@ export function Menu({ isOpen }: MenuProps) {
                     onClick={() => {
                       logout();
                     }}
-                    className="text-destructive focus:text-destructive"
+                    className="text-destructive focus:text-destructive rounded-3xl"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
