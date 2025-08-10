@@ -9,7 +9,7 @@ import React, {
   useRef,
 } from "react";
 import { useRouter } from "next/navigation";
-import { authService } from "@/services/services";
+import { authService } from "@/api/auth.api";
 
 interface User {
   id: string;

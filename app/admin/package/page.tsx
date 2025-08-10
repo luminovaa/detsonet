@@ -4,76 +4,48 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdminPanelLayout from "@/components/admin/admin-layout";
-import { getUsers } from "@/api/user.api";
-import { User } from "@/types/user.types";
+import { getPackages } from "@/api/package.api";
+import { Package } from "@/types/package.types";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   Pagination,
   PaginationMeta,
 } from "@/components/admin/table/reusable-pagination";
 import { ColumnDef, DataTable } from "@/components/admin/table/reusable-table";
-import { RoleBadge } from "@/components/admin/role-badge";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/utils/format-currency";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import Image from "next/image";
-interface UsersResponse {
-  users: User[];
+interface PackagesResponse {
+  packages: Package[];
   pagination: PaginationMeta;
 }
 
-function UserTable() {
+function PackageTable() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = parseInt(searchParams.get("page") || "1");
-  const selectedRole = searchParams.get("role");
   const limit = parseInt(searchParams.get("limit") || "10");
   const urlSearch = searchParams.get("search") || "";
 
   const [searchInput, setSearchInput] = useState(urlSearch);
   const debouncedSearch = useDebounce(searchInput, 500);
-
-  const [users, setUsers] = useState<User[]>([]);
+ 
+  const [packages, setPackages] = useState<Package[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const columns: ColumnDef<User>[] = [
+  const columns: ColumnDef<Package>[] = [
     {
-      header: "Avatar",
-      cell: (user) => (
-        <div className="flex items-center">
-          <Image
-            src={user.profile?.avatar || "/user.png"}
-            alt={user.profile?.full_name || "Avatar"}
-            className="rounded-full w-8 h-8 object-cover"
-            width={32}
-            height={32}
-            unoptimized={true}
-          />
-        </div>
-      ),
+      header: "Nama Paket",
+      accessorKey: "name",
     },
     {
-      header: "Nama",
-      cell: (user) => user.profile?.full_name || "-",
+      header: "Kecepatan",
+      accessorKey: "speed",
     },
     {
-      accessorKey: "username",
-      header: "Username",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      header: "Role",
-      cell: (user) => <RoleBadge role={user.role} />,
+      header: "Harga",
+      cell: (packages) => formatCurrency(packages.price),
     },
   ];
 
@@ -94,40 +66,39 @@ function UserTable() {
   };
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchPackages = async () => {
       try {
         setLoading(true);
         const params = {
           page: currentPage,
           limit,
           ...(urlSearch && { search: urlSearch }),
-          ...(selectedRole && { role: selectedRole }),
         };
 
-        const response = await getUsers(params);
-        const data: UsersResponse = response.data.data;
+        const response = await getPackages(params);
+        const data: PackagesResponse = response.data.data;
 
-        setUsers(data.users);
+        setPackages(data.packages);
         setPagination(data.pagination);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching packages:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
-  }, [currentPage, limit, urlSearch, selectedRole]);
+    fetchPackages();
+  }, [currentPage, limit, urlSearch]);
 
   useEffect(() => {
     setSearchInput(urlSearch);
   }, [urlSearch]);
 
-  const handleEditUser = async (user: User) => {
-    console.log("Edit user:", user);
+  const handleEditPackage = async (pkg: Package) => {
+    console.log("Edit package:", pkg);
   };
-  const handleDeleteUser = async (user: User) => {
-    console.log("Delete user:", user);
+  const handleDeletePackage = async (pkg: Package) => {
+    console.log("Delete package:", pkg);
   };
   useEffect(() => {
     if (debouncedSearch !== urlSearch) {
@@ -147,13 +118,13 @@ function UserTable() {
     });
   };
 
-  if (loading && !users.length) {
+  if (loading && !packages.length) {
     return (
       <AdminPanelLayout
-        title="Daftar Pengguna"
+        title="Daftar Paket"
         searchValue={searchInput}
         onSearchChange={setSearchInput}
-        searchPlaceholder="Cari pengguna..."
+        searchPlaceholder="Cari paket..."
       >
         <DataTable
           columns={columns}
@@ -168,58 +139,24 @@ function UserTable() {
 
   return (
     <AdminPanelLayout
-      title="Daftar Pengguna"
+      title="Daftar Paket"
       searchValue={searchInput}
       onSearchChange={setSearchInput}
-      searchPlaceholder="Cari pengguna..."
+      searchPlaceholder="Cari paket..."
     >
       <div className="space-y-4">
         <div className="flex justify-end gap-3">
-          <Select
-            value={selectedRole || "all"}
-            onValueChange={(value) => {
-              const params: Record<string, string | number> = {
-                page: 1,
-                limit,
-                search: debouncedSearch,
-              };
-
-              if (value !== "all") {
-                params.role = value;
-              } else {
-                params.role = "";
-              }
-              updateSearchParams(params);
-            }}
-          >
-            <SelectTrigger className="w-[180px] rounded-3xl">
-              <SelectValue placeholder="Semua Role" />
-            </SelectTrigger>
-            <SelectContent className="rounded-3xl">
-              <SelectItem className="rounded-3xl" value="all">
-                Semua Role
-              </SelectItem>{" "}
-              <SelectItem className="rounded-3xl" value="SUPER_ADMIN">
-                Super Admin
-              </SelectItem>
-              <SelectItem className="rounded-3xl" value="ADMIN">
-                Admin
-              </SelectItem>
-              <SelectItem className="rounded-3xl" value="TEKNISI">
-                Teknisi
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          
           <Button
             className="rounded-3xl"
-            onClick={() => router.push("/admin/user/create-user")}
+            onClick={() => router.push("/admin/package/create-package")}
           >
-            Tambah Pengguna
+            Tambah Paket
           </Button>
         </div>
         <DataTable
           columns={columns}
-          data={users}
+          data={packages}
           loading={loading}
           emptyMessage="Tidak ada data"
           emptySearchMessage="Tidak ada data yang ditemukan"
@@ -227,8 +164,8 @@ function UserTable() {
           showIndex={true}
           indexStartFrom={(currentPage - 1) * limit + 1}
           actions={{
-            onDelete: handleDeleteUser,
-            onEdit: handleEditUser,
+            onDelete: handleDeletePackage,
+            onEdit: handleEditPackage,
           }}
         />
 
@@ -249,4 +186,4 @@ function UserTable() {
   );
 }
 
-export default UserTable;
+export default PackageTable;

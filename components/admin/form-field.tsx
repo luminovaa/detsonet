@@ -17,7 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FieldPath, FieldValues, UseFormReturn } from "react-hook-form";
+import {
+  FieldPath,
+  FieldValues,
+  UseFormReturn,
+} from "react-hook-form";
+
 import { ReactNode } from "react";
 
 type FormFieldProps<
@@ -104,7 +109,7 @@ export function FormField<
               />
             )}
           </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
+          {description && <FormDescription className="text-xs ml">* {description}</FormDescription>}
           <FormMessage />
         </FormItem>
       )}

@@ -1,5 +1,5 @@
 import service from "@/services/services";
-import { CreateUserFormData, User } from "@/types/user.types";
+import { CreateUserFormData, UpdateUserFormData, User } from "@/types/user.types";
 
 interface GetUsersParams {
   page?: number;
@@ -29,4 +29,15 @@ export function createUser(user: CreateUserFormData) {
         method: 'post',
         data: user
     })
+}
+
+export function editUser(formData: FormData, id: string) {
+  return service({
+    url: `/user/${id}`,
+    method: 'put',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 }

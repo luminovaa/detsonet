@@ -8,9 +8,9 @@ import AdminPanelLayout from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createUser } from "@/api/user.api";
+import { createPackage } from "@/api/package.api";
 import { Loader2 } from "lucide-react";
-import { CreateUserFormData, createUserSchema, role } from "@/types/user.types";
+import { CreatePackageFormData, createPackageSchema } from "@/types/package.types";
 import { FormField } from "@/components/admin/form-field";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -19,43 +19,35 @@ import {
   withErrorToast,
 } from "@/components/admin/toast-reusable";
 
-const roleOptions = [
-  { value: "TEKNISI", label: "Teknisi" },
-  { value: "ADMIN", label: "Admin" },
-  { value: "SUPER_ADMIN", label: "Super Admin" },
-];
 
-function CreateUser() {
+function CreatePackage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { success, warning, info } = useToast();
   const { showApiError, showValidationError } = useErrorToast();
   const [showFormErrors, setShowFormErrors] = useState(false);
 
-  const form = useForm<CreateUserFormData>({
-    resolver: zodResolver(createUserSchema),
-    defaultValues: {
-      email: "",
-      username: "",
-      password: "",
-      phone: "",
-      role: "TEKNISI",
-      full_name: "",
-    },
-  });
+  const form = useForm<CreatePackageFormData>({
+  resolver: zodResolver(createPackageSchema),
+  defaultValues: {
+    name: "",
+    speed: "",
+    price: 0,
+  } satisfies CreatePackageFormData,
+});
 
-  const onSubmit = async (data: CreateUserFormData) => {
+  const onSubmit = async (data: CreatePackageFormData) => {
     try {
       setIsLoading(true);
 
-       await createUser(data);
+       await createPackage(data);
 
-      success(`Pengguna ${data.full_name} berhasil dibuat!`, {
-        title: "Berhasil Membuat Pengguna",
+      success(`Paket ${data.name} berhasil dibuat!`, {
+        title: "Berhasil Membuat Paket",
       });
 
       setTimeout(() => {
-        router.push("/admin/user");
+        router.push("/admin/package");
       }, 2000);
     } catch (err: any) {
       showApiError(err);
@@ -71,7 +63,7 @@ function CreateUser() {
       });
       return;
     }
-    router.push("/admin/user");
+    router.push("/admin/package");
   };
 
   const handleFormError = () => {
@@ -97,57 +89,29 @@ function CreateUser() {
               >
                 <FormField
                   form={form}
-                  name="full_name"
-                  label="Nama Lengkap *"
-                  placeholder="Masukkan nama lengkap"
+                  name="name"
+                  label="Nama Paket *"
+                  placeholder="Masukkan nama paket"
                   disabled={isLoading}
                 />
 
                 <FormField
                   form={form}
-                  name="email"
-                  type="email"
-                  label="Email *"
-                  placeholder="Masukkan email"
-                  disabled={isLoading}
-                />
-                <FormField
-                  form={form}
-                  name="username"
-                  label="Username *"
-                  placeholder="Masukkan username"
+                  name="speed"
+                  label="Kecepatan *"
+                  placeholder="Masukkan kecepatan"
                   disabled={isLoading}
                 />
 
                 <FormField
                   form={form}
-                  name="phone"
-                  label="Nomor Telepon *"
-                  placeholder="Masukkan nomor telepon"
+                  name="price"
+                  label="Harga *"
+                  type="number"
+                  placeholder="Masukkan harga"
                   disabled={isLoading}
                 />
-
-                <FormField
-                  form={form}
-                  name="role"
-                  type="select"
-                  label="Role *"
-                  placeholder="Pilih role"
-                  disabled={isLoading}
-                  selectOptions={roleOptions}
-                />
-
-                {/* Password */}
-                <FormField
-                  form={form}
-                  name="password"
-                  type="password"
-                  label="Password *"
-                  placeholder="Masukkan password"
-                  disabled={isLoading}
-                />
-
-                {/* Action Buttons */}
+                
                 <div className="flex justify-end gap-4 pt-4">
                   <Button
                     type="button"
@@ -183,4 +147,4 @@ function CreateUser() {
   );
 }
 
-export default CreateUser;
+export default CreatePackage;

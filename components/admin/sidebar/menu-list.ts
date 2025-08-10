@@ -5,7 +5,8 @@ import {
   Bookmark,
   SquarePen,
   LayoutGrid,
-  LucideIcon
+  LucideIcon,
+  Wifi
 } from "lucide-react";
 
 type Submenu = {
@@ -74,15 +75,15 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Settings",
       menus: [
         {
-          href: "/admin/user",
-          label: "Users",
-          icon: Users
+          href: "/admin/package",
+          label: "Paket Internet",
+          icon: Wifi
         },
         {
-          href: "/account",
-          label: "Account",
-          icon: Settings
-        }
+          href: "/admin/user",
+          label: "Pengguna",
+          icon: Users
+        },
       ]
     }
   ];

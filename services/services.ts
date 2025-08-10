@@ -1,3 +1,4 @@
+import { authService } from "@/api/auth.api";
 import axios from "axios";
 
 interface ServiceOptions {
@@ -26,7 +27,7 @@ const createService = (options?: ServiceOptions) => {
     const service = axios.create({
         baseURL: process.env.NEXT_PUBLIC_API_URL,
         timeout: 50000,
-        withCredentials: true, // PENTING: untuk mengirim cookies otomatis
+        withCredentials: true, 
     }); 
 
     service.interceptors.request.use(
@@ -95,54 +96,6 @@ const createService = (options?: ServiceOptions) => {
     return service;
 };
 
-export const authService = {
-    login: async (credentials: { identifier: string; password: string }) => {
-        const service = createService();
-        const response = await service.post('/auth/login', credentials);
-        
-        // Tidak perlu simpan ke localStorage
-        // Semua data sudah tersimpan di HTTP-only cookies
-        return response.data.data;
-    },
 
-    logout: async () => {
-        const service = createService();
-        try {
-            await service.post('/auth/logout');
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
-        // Tidak perlu hapus localStorage karena tidak digunakan
-        // Cookies akan dihapus oleh backend saat logout
-    },
-
-    refreshToken: async () => {
-        const service = createService();
-        const response = await service.post('/auth/refresh');
-        return response.data;
-    },
-
-    // Method untuk cek user info dari backend
-    getCurrentUser: async () => {
-        const service = createService();
-        try {
-            const response = await service.get('/auth/me'); // endpoint untuk get current user
-            return response.data.data;
-        } catch (error) {
-            return null;
-        }
-    },
-
-    // Method untuk verify session
-    verifySession: async () => {
-        const service = createService();
-        try {
-            const response = await service.get('/auth/verify');
-            return response.data;
-        } catch (error) {
-            return null;
-        }
-    }
-};
 
 export default createService();

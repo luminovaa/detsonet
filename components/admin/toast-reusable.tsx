@@ -7,36 +7,62 @@ export const useErrorToast = () => {
   const { error } = useToast();
 
   const showApiError = (err: any, customMessage?: string) => {
-    const errorMessage = err?.response?.data?.message;
+    const errorMessage = err?.response?.data?.message || err?.message;
     const errorStatus = err?.response?.status;
+    const errorCode = err?.response?.data?.code;
+    const errorErrors = err?.response?.data?.errors; // Array of validation errors
+
+    // Jika ada validation errors (biasanya array), tampilkan yang pertama dengan field
+    if (errorErrors && Array.isArray(errorErrors) && errorErrors.length > 0) {
+      const firstError = errorErrors[0];
+      const fieldMessage = firstError.field 
+        ? `${firstError.field}: ${firstError.message}`
+        : firstError.message;
+      
+      error(customMessage || fieldMessage, {
+        title: "Validasi Gagal",
+      });
+      return;
+    }
 
     if (errorStatus === 409) {
-      error(customMessage || "Data sudah ada dalam sistem", {
+      // Gunakan pesan dari backend yang lebih spesifik
+      error(customMessage || errorMessage || "Data sudah ada dalam sistem", {
         title: "Data Duplikat",
       });
     } else if (errorStatus === 400) {
       error(
         customMessage ||
+          errorMessage ||
           "Data yang dimasukkan tidak valid. Periksa kembali form.",
         {
           title: "Data Tidak Valid",
         }
       );
     } else if (errorStatus === 401) {
-      error(customMessage || "Anda tidak memiliki akses untuk melakukan ini", {
+      error(customMessage || errorMessage || "Anda tidak memiliki akses untuk melakukan ini", {
         title: "Tidak Diizinkan",
       });
     } else if (errorStatus === 403) {
-      error(customMessage || "Akses ditolak", {
+      error(customMessage || errorMessage || "Akses ditolak", {
         title: "Akses Ditolak",
       });
     } else if (errorStatus === 404) {
-      error(customMessage || "Data yang dicari tidak ditemukan", {
+      error(customMessage || errorMessage || "Data yang dicari tidak ditemukan", {
         title: "Data Tidak Ditemukan",
+      });
+    } else if (errorStatus === 422) {
+      // Unprocessable Entity - biasanya untuk validation errors
+      error(customMessage || errorMessage || "Data tidak dapat diproses", {
+        title: "Validasi Gagal",
+      });
+    } else if (errorStatus === 429) {
+      error(customMessage || errorMessage || "Terlalu banyak permintaan. Silakan coba lagi nanti.", {
+        title: "Rate Limit",
       });
     } else if (errorStatus >= 500) {
       error(
-        customMessage || "Terjadi kesalahan server. Silakan coba lagi nanti.",
+        customMessage || errorMessage || "Terjadi kesalahan server. Silakan coba lagi nanti.",
         {
           title: "Error Server",
         }
@@ -58,9 +84,33 @@ export const useErrorToast = () => {
     customTitle?: string
   ) => {
     const firstError = Object.values(errors)[0];
-    error(firstError?.message || "Periksa kembali data yang dimasukkan", {
+    const firstField = Object.keys(errors)[0];
+    
+    // Tampilkan field name dan message
+    const message = firstField 
+      ? `${firstField}: ${firstError?.message || firstError}`
+      : firstError?.message || firstError || "Periksa kembali data yang dimasukkan";
+
+    error(message, {
       title: customTitle || "Validasi Gagal",
     });
+  };
+
+  // Fungsi baru untuk menampilkan validation errors dari backend
+  const showBackendValidationErrors = (
+    errors: Array<{field: string, message: string}>,
+    customTitle?: string
+  ) => {
+    if (errors && errors.length > 0) {
+      const firstError = errors[0];
+      const message = firstError.field 
+        ? `${firstError.field}: ${firstError.message}`
+        : firstError.message;
+
+      error(message, {
+        title: customTitle || "Validasi Gagal",
+      });
+    }
   };
 
   const showNetworkError = (customMessage?: string) => {
@@ -69,10 +119,38 @@ export const useErrorToast = () => {
     });
   };
 
+  // Fungsi untuk menampilkan error berdasarkan error code dari backend
+  const showErrorByCode = (errorCode: string, message: string) => {
+    switch (errorCode) {
+      case 'DUPLICATE_DATA':
+        error(message, { title: "Data Duplikat" });
+        break;
+      case 'INVALID_REFERENCE':
+        error(message, { title: "Referensi Tidak Valid" });
+        break;
+      case 'DATABASE_ERROR':
+        error(message, { title: "Error Database" });
+        break;
+      case 'FILE_UPLOAD_ERROR':
+      case 'FileTooLargeError':
+      case 'InvalidFileTypeError':
+      case 'FileNotFoundError':
+        error(message, { title: "Error Upload File" });
+        break;
+      case 'RATE_LIMIT_EXCEEDED':
+        error(message, { title: "Rate Limit" });
+        break;
+      default:
+        error(message, { title: "Error" });
+    }
+  };
+
   return {
     showApiError,
     showValidationError,
+    showBackendValidationErrors,
     showNetworkError,
+    showErrorByCode,
   };
 };
 
@@ -174,13 +252,19 @@ export const withErrorToast = <T extends any[], R>(
         loadingToast.dismiss();
       }
 
-      const errorMessage =
-        options?.customErrorMessage ||
-        err?.response?.data?.message ||
-        "Terjadi kesalahan";
-      const errorTitle = options?.customTitle || "Error";
-
-      error(errorMessage, { title: errorTitle });
+      // Gunakan pesan error dari backend jika tersedia
+      const errorMessage = err?.response?.data?.message || err?.message;
+      const errorCode = err?.response?.data?.code;
+      
+      // Jika ada error code, gunakan fungsi showErrorByCode
+      if (errorCode) {
+        const { showErrorByCode } = useErrorToast();
+        showErrorByCode(errorCode, errorMessage || "Terjadi kesalahan");
+      } else {
+        const finalMessage = options?.customErrorMessage || errorMessage || "Terjadi kesalahan";
+        const errorTitle = options?.customTitle || "Error";
+        error(finalMessage, { title: errorTitle });
+      }
 
       options?.onError?.(err);
       return undefined;
@@ -201,19 +285,11 @@ export const FormErrorToast: React.FC<FormErrorToastProps> = ({
   customMessage,
   onDismiss,
 }) => {
-  const { error } = useToast();
+  const { showValidationError } = useErrorToast();
 
   React.useEffect(() => {
     if (isVisible && errors && Object.keys(errors).length > 0) {
-      const firstError = Object.values(errors)[0];
-      const toastInstance = error(
-        customMessage ||
-          firstError?.message ||
-          "Periksa kembali data yang dimasukkan",
-        {
-          title: "Data Tidak Valid",
-        }
-      );
+      showValidationError(errors, "Data Tidak Valid");
 
       if (onDismiss) {
         setTimeout(() => {
@@ -221,7 +297,7 @@ export const FormErrorToast: React.FC<FormErrorToastProps> = ({
         }, 5000);
       }
     }
-  }, [errors, isVisible, customMessage, error, onDismiss]);
+  }, [errors, isVisible, customMessage, showValidationError, onDismiss]);
 
   return null; 
 };
@@ -231,6 +307,7 @@ export interface ApiError {
   message: string;
   code?: string;
   details?: any;
+  errors?: Array<{field: string, message: string}>;
 }
 
 export interface ValidationError {
@@ -243,6 +320,7 @@ interface ErrorContextType {
   showError: (message: string, title?: string) => void;
   showApiError: (error: any, customMessage?: string) => void;
   showValidationErrors: (errors: ValidationError[]) => void;
+  showBackendValidationErrors: (errors: Array<{field: string, message: string}>) => void;
 }
 
 const ErrorContext = React.createContext<ErrorContextType | null>(null);
@@ -261,19 +339,20 @@ export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const showApiError = React.useCallback(
     (err: any, customMessage?: string) => {
-      const errorMessage = err?.response?.data?.message;
+      const errorMessage = err?.response?.data?.message || err?.message;
       const errorStatus = err?.response?.status;
+      const errorCode = err?.response?.data?.code;
 
       if (errorStatus === 409) {
-        error(customMessage || "Data sudah ada dalam sistem", {
+        error(customMessage || errorMessage || "Data sudah ada dalam sistem", {
           title: "Data Duplikat",
         });
       } else if (errorStatus === 400) {
-        error(customMessage || "Data yang dimasukkan tidak valid", {
+        error(customMessage || errorMessage || "Data yang dimasukkan tidak valid", {
           title: "Data Tidak Valid",
         });
       } else if (errorStatus >= 500) {
-        error(customMessage || "Terjadi kesalahan server", {
+        error(customMessage || errorMessage || "Terjadi kesalahan server", {
           title: "Error Server",
         });
       } else {
@@ -297,13 +376,30 @@ export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({
     [error]
   );
 
+  const showBackendValidationErrors = React.useCallback(
+    (errors: Array<{field: string, message: string}>) => {
+      if (errors.length > 0) {
+        const firstError = errors[0];
+        const message = firstError.field 
+          ? `${firstError.field}: ${firstError.message}`
+          : firstError.message;
+        
+        error(message, {
+          title: "Validasi Gagal",
+        });
+      }
+    },
+    [error]
+  );
+
   const value = React.useMemo(
     () => ({
       showError,
       showApiError,
       showValidationErrors,
+      showBackendValidationErrors,
     }),
-    [showError, showApiError, showValidationErrors]
+    [showError, showApiError, showValidationErrors, showBackendValidationErrors]
   );
 
   return (
