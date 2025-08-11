@@ -17,13 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  FieldPath,
-  FieldValues,
-  UseFormReturn,
-} from "react-hook-form";
+import { FieldPath, FieldValues, UseFormReturn } from "react-hook-form";
 
 import { ReactNode } from "react";
+import { formatCurrency, parseCurrency } from "@/utils/format-currency";
 
 type FormFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -43,7 +40,8 @@ type FormFieldProps<
     | "number"
     | "textarea"
     | "select"
-    | "date";
+    | "date"
+    | "currency";
   selectOptions?: { value: string; label: string }[];
   children?: ReactNode;
 };
@@ -91,12 +89,37 @@ export function FormField<
                 </FormControl>
                 <SelectContent className="rounded-3xl">
                   {selectOptions.map((option) => (
-                    <SelectItem className="rounded-3xl" key={option.value} value={option.value}>
+                    <SelectItem
+                      className="rounded-3xl"
+                      key={option.value}
+                      value={option.value}
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            ) : type === "currency" ? (
+              <Input
+                className="rounded-3xl"
+                placeholder={placeholder}
+                disabled={disabled}
+                type="text"
+                value={field.value ? formatCurrency(field.value) : ""}
+                onChange={(e) => {
+                  const rawValue = e.target.value;
+                  // Simpan nilai numerik asli ke form state
+                  const parsedValue = parseCurrency(rawValue);
+                  field.onChange(parsedValue);
+                }}
+                onBlur={() => {
+                  // Format ulang saat kehilangan fokus
+                  if (field.value !== undefined && field.value !== null) {
+                    field.onChange(Number(field.value));
+                  }
+                }}
+                inputMode="numeric"
+              />
             ) : children ? (
               children
             ) : (
@@ -109,7 +132,11 @@ export function FormField<
               />
             )}
           </FormControl>
-          {description && <FormDescription className="text-xs ml">* {description}</FormDescription>}
+          {description && (
+            <FormDescription className="text-xs ml">
+              * {description}
+            </FormDescription>
+          )}
           <FormMessage />
         </FormItem>
       )}

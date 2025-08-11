@@ -6,7 +6,9 @@ import {
   SquarePen,
   LayoutGrid,
   LucideIcon,
-  Wifi
+  Wifi,
+  PhoneForwardedIcon,
+  UserCircle2
 } from "lucide-react";
 
 type Submenu = {
@@ -65,15 +67,20 @@ export function getMenuList(pathname: string): Group[] {
           icon: Bookmark
         },
         {
-          href: "/tags",
-          label: "Tags",
-          icon: Tag
+          href: "/admin/customer",
+          label: "Pelanggan",
+          icon: UserCircle2
         }
       ]
     },
     {
       groupLabel: "Settings",
       menus: [
+        {
+          href: "/admin/whatsapp",
+          label: "Whastapp",
+          icon: PhoneForwardedIcon
+        },
         {
           href: "/admin/package",
           label: "Paket Internet",

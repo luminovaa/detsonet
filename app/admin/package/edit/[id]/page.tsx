@@ -1,14 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdminPanelLayout from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createPackage } from "@/api/package.api";
 import { Loader2 } from "lucide-react";
 import {
   CreatePackageFormData,
@@ -16,15 +16,19 @@ import {
 } from "@/types/package.types";
 import { FormField } from "@/components/admin/form-field";
 import { useToast } from "@/hooks/use-toast";
+import { getPackageById, updatePackage } from "@/api/package.api";
 import {
   FormErrorToast,
   useErrorToast,
   withErrorToast,
 } from "@/components/admin/toast-reusable";
 
-function CreatePackage() {
+function EditPackagePage() {
   const router = useRouter();
+  const params = useParams();
+  const packageId = params.id as string;
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const { success, warning, info } = useToast();
   const { showApiError, showValidationError } = useErrorToast();
   const [showFormErrors, setShowFormErrors] = useState(false);
@@ -38,14 +42,34 @@ function CreatePackage() {
     },
   });
 
+  useEffect(() => {
+  const fetchPackageData = async () => {
+    try {
+      const packageData = await getPackageById(packageId);
+      form.reset({
+          name: packageData.data.data.name,
+          speed: packageData.data.data.speed,
+        price: packageData.data.data.price,
+      });
+    } catch (err: any) {
+      showApiError(err);
+      router.push("/admin/package");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  fetchPackageData();
+}, [packageId]);
+
   const onSubmit = async (data: CreatePackageFormData) => {
     try {
       setIsLoading(true);
 
-      await createPackage(data);
+      await updatePackage(packageId, data);
 
-      success(`Paket ${data.name} berhasil dibuat!`, {
-        title: "Berhasil Membuat Paket",
+      success(`Paket ${data.name} berhasil diperbarui!`, {
+        title: "Berhasil Memperbarui Paket",
       });
 
       setTimeout(() => {
@@ -60,7 +84,7 @@ function CreatePackage() {
 
   const handleCancel = () => {
     if (form.formState.isDirty) {
-      warning("Data yang sudah diisi akan hilang jika dibatalkan.", {
+      warning("Perubahan yang sudah dibuat akan hilang jika dibatalkan.", {
         title: "Konfirmasi Pembatalan",
       });
       return;
@@ -75,12 +99,23 @@ function CreatePackage() {
       setShowFormErrors(true);
     }
   };
+
+  if (isFetching) {
+    return (
+      <AdminPanelLayout title="Memuat Data Paket" showSearch={false}>
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </AdminPanelLayout>
+    );
+  }
+
   return (
-    <AdminPanelLayout title="Tambah Pengguna Baru" showSearch={false}>
+    <AdminPanelLayout title="Edit Paket" showSearch={false}>
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Tambah Pengguna</CardTitle>
+            <CardTitle>Edit Paket</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -131,7 +166,7 @@ function CreatePackage() {
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    {isLoading ? "Menyimpan..." : "Simpan"}
+                    {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
                   </Button>
                 </div>
               </form>
@@ -148,4 +183,4 @@ function CreatePackage() {
   );
 }
 
-export default CreatePackage;
+export default EditPackagePage;

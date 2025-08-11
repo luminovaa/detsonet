@@ -4,16 +4,14 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdminPanelLayout from "@/components/admin/admin-layout";
-import { getPackages } from "@/api/package.api";
+import { deletePackage, getPackages } from "@/api/package.api";
 import { Package } from "@/types/package.types";
-import { useDebounce } from "@/hooks/use-debounce";
-import {
-  Pagination,
-  PaginationMeta,
-} from "@/components/admin/table/reusable-pagination";
+import { Pagination, PaginationMeta } from "@/components/admin/table/reusable-pagination";
 import { ColumnDef, DataTable } from "@/components/admin/table/reusable-table";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/utils/format-currency";
+import { useToast } from "@/hooks/use-toast";
+import { useErrorToast } from "@/components/admin/toast-reusable";
 
 interface PackagesResponse {
   packages: Package[];
@@ -25,11 +23,10 @@ function PackageTable() {
   const searchParams = useSearchParams();
   const currentPage = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "10");
-  const urlSearch = searchParams.get("search") || "";
 
-  const [searchInput, setSearchInput] = useState(urlSearch);
-  const debouncedSearch = useDebounce(searchInput, 500);
- 
+  const { success } = useToast();
+  const { showApiError } = useErrorToast();
+
   const [packages, setPackages] = useState<Package[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +42,7 @@ function PackageTable() {
     },
     {
       header: "Harga",
-      cell: (packages) => formatCurrency(packages.price),
+      cell: (row) => formatCurrency(row.price),
     },
   ];
 
@@ -72,7 +69,6 @@ function PackageTable() {
         const params = {
           page: currentPage,
           limit,
-          ...(urlSearch && { search: urlSearch }),
         };
 
         const response = await getPackages(params);
@@ -88,44 +84,37 @@ function PackageTable() {
     };
 
     fetchPackages();
-  }, [currentPage, limit, urlSearch]);
-
-  useEffect(() => {
-    setSearchInput(urlSearch);
-  }, [urlSearch]);
+  }, [currentPage, limit]);
 
   const handleEditPackage = async (pkg: Package) => {
-    console.log("Edit package:", pkg);
+    router.push(`/admin/package/edit/${pkg.id}`);
   };
+
   const handleDeletePackage = async (pkg: Package) => {
-    console.log("Delete package:", pkg);
-  };
-  useEffect(() => {
-    if (debouncedSearch !== urlSearch) {
-      updateSearchParams({
-        page: 1,
-        limit,
-        search: debouncedSearch,
+    try {
+      await deletePackage(pkg.id!);
+
+      // Refresh data setelah hapus
+      const response = await getPackages({ page: currentPage, limit });
+      const data: PackagesResponse = response.data.data;
+      setPackages(data.packages);
+      setPagination(data.pagination);
+
+      success(`Paket ${pkg.name} berhasil dihapus!`, {
+        title: "Berhasil Menghapus Paket",
       });
+    } catch (error) {
+      showApiError(error);
     }
-  }, [debouncedSearch, urlSearch, limit]);
+  };
 
   const handlePageChange = (page: number) => {
-    updateSearchParams({
-      page,
-      limit,
-      ...(urlSearch && { search: urlSearch }),
-    });
+    updateSearchParams({ page, limit });
   };
 
   if (loading && !packages.length) {
     return (
-      <AdminPanelLayout
-        title="Daftar Paket"
-        searchValue={searchInput}
-        onSearchChange={setSearchInput}
-        searchPlaceholder="Cari paket..."
-      >
+      <AdminPanelLayout title="Daftar Paket">
         <DataTable
           columns={columns}
           data={[]}
@@ -138,15 +127,9 @@ function PackageTable() {
   }
 
   return (
-    <AdminPanelLayout
-      title="Daftar Paket"
-      searchValue={searchInput}
-      onSearchChange={setSearchInput}
-      searchPlaceholder="Cari paket..."
-    >
+    <AdminPanelLayout title="Daftar Paket" showSearch={false}>
       <div className="space-y-4">
         <div className="flex justify-end gap-3">
-          
           <Button
             className="rounded-3xl"
             onClick={() => router.push("/admin/package/create-package")}
@@ -154,13 +137,13 @@ function PackageTable() {
             Tambah Paket
           </Button>
         </div>
+
         <DataTable
           columns={columns}
           data={packages}
           loading={loading}
           emptyMessage="Tidak ada data"
           emptySearchMessage="Tidak ada data yang ditemukan"
-          hasSearch={!!urlSearch}
           showIndex={true}
           indexStartFrom={(currentPage - 1) * limit + 1}
           actions={{

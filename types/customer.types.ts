@@ -8,9 +8,11 @@ export type Customer = {
     nik?: string;
     birth_date?: Date;
     birth_place?: string;
+    address?: string;
     created_at?: Date;
     updated_at?: Date;
     documents?: Customer_Document[]
+    services?: Service_Connection[]
 }
 
 export type Customer_Document = {

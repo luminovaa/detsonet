@@ -22,3 +22,26 @@ export function createPackage(data: CreatePackageFormData) {
         data,
     });
 }
+
+export function getPackageById(id: string) {
+  return services({
+    url: `/package/${id}`,
+    method: 'get',
+  })
+}
+
+export function updatePackage(id: string, data: CreatePackageFormData) {
+  return services({
+    url: `/package/${id}`,
+    method: 'put',
+    data,
+  });
+}
+
+
+export function deletePackage(id: string) {
+  return services({
+    url: `/package/${id}`,
+    method: 'delete',
+  });
+}

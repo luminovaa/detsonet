@@ -15,30 +15,32 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
-import { authService } from "@/api/auth.api";
+import { AirplayIcon, AirVent, Lock, MessageCircleDashed } from "lucide-react";
 import { useErrorToast } from "@/components/admin/toast-reusable";
 import { FormField } from "@/components/admin/form-field";
-import { ChangePasswordFormValues, changePasswordSchema } from "@/types/profile.types";
+import { SendMessageFormData, sendMessageSchema } from "@/types/whatsapp.types";
+import { sendMessage } from "@/api/whatsapp.api";
 
+interface SendMessageDialogProps {
+  onSuccess?: () => void; // tambahkan ini
+}
 
-export function ChangePasswordDialog() {
+export function SendMessageDialog({ onSuccess }: SendMessageDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { showApiError } = useErrorToast();
 
-  const form = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordSchema),
+  const form = useForm<SendMessageFormData>({
+    resolver: zodResolver(sendMessageSchema),
     mode: "onSubmit",
     defaultValues: {
-      oldPassword: "",
-      password: "",
-      confirmPassword: "",
+        phone_number: "",
+        message: "",
     },
   });
 
-  async function onSubmit(data: ChangePasswordFormValues) {
+  async function onSubmit(data: SendMessageFormData) {
     setLoading(true);
     try {
 
@@ -47,18 +49,20 @@ export function ChangePasswordDialog() {
         setLoading(false);
         return;
       }
-      await authService.changePassword(data.oldPassword, data.password, data.confirmPassword);
+      await sendMessage(data);
       
-      // Success toast
       toast({
         title: "Berhasil!",
-        description: "Password berhasil diubah.",
+        description: "Pesan berhasil dikirim.",
       });
       
       form.reset();
       setOpen(false);
+
+      if (onSuccess) {
+        onSuccess();
+    }
     } catch (error: any) {
-      // Gunakan error toast yang sudah dibuat
       showApiError(error);
     } finally {
       setLoading(false);
@@ -67,53 +71,41 @@ export function ChangePasswordDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="w-full">
-          <Lock className="w-4 h-4 mr-2" />
-          Ubah Password
+      <DialogTrigger asChild className="rounded-3xl">
+        <Button variant="default" className="rouded-3xl">
+          <MessageCircleDashed className="w-4 h-4 mr-2" />
+            Kirim Pesan
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Ubah Password</DialogTitle>
+          <DialogTitle>Kirim Pesan</DialogTitle>
           <DialogDescription>
-            Masukkan password lama dan password baru Anda.
+            Kirim pesan WhatsApp ke nomor yang ditentukan.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               form={form}
-              name="oldPassword"
-              label="Password Lama"
-              type="password"
-              placeholder="••••••••"
+              name="phone_number"
+              label="Nomer Telepon"
+              type="text"
+              placeholder="Masukkan nomor telepon"
               disabled={loading}
             />
             
             <FormField
               form={form}
-              name="password"
-              label="Password Baru"
-              type="password"
-              placeholder="••••••••"
+              name="message"
+              label="Pesan"
+              type="textarea"
+              placeholder="Masukkan pesan"
               disabled={loading}
-              description="Password baru minimal 6 karakter."
             />
-            
-            <FormField
-              form={form}
-              name="confirmPassword"
-              label="Konfirmasi Password"
-              type="password"
-              placeholder="••••••••"
-              disabled={loading}
-              description="Pastikan password baru dan konfirmasi cocok."
-            />
-            
             <div className="flex justify-end pt-2">
               <Button type="submit" disabled={loading}>
-                {loading ? "Menyimpan..." : "Simpan Perubahan"}
+                {loading ? "Mengirim..." : "Kirim Pesan"}
               </Button>
             </div>
           </form>

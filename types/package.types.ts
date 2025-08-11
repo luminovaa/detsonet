@@ -18,7 +18,7 @@ export const createPackageSchema = z.object({
         .string()
         .min(1, "Kecepatan wajib diisi"),
     price: z
-        .number()
+        .coerce.number()
         .nonnegative("Harga tidak boleh negatif")
         .min(1000, "Harga minimal Rp1.000")
         .max(1_000_000_000, "Harga maksimal Rp1.000.000.000"),

@@ -13,10 +13,10 @@ import {
 export interface PaginationMeta {
   currentPage: number;
   totalPages: number;
-  pageSize: number;
+  limit: number;           // Ganti dari pageSize → limit
   totalItems: number;
-  hasPrev: boolean;
-  hasNext: boolean;
+  hasNext: boolean;        // Ganti dari hasNextPage → hasNext
+  hasPrev: boolean;        // Ganti dari hasPreviousPage → hasPrev
 }
 
 interface PaginationProps {
@@ -103,14 +103,13 @@ export function Pagination({
     return null;
   }
 
-  const startItem = ((pagination.currentPage - 1) * pagination.pageSize) + 1;
-  const endItem = Math.min(pagination.currentPage * pagination.pageSize, pagination.totalItems);
+  const endItem = Math.min(pagination.currentPage * pagination.limit, pagination.totalItems);
 
   return (
     <div className="flex items-center justify-between">
       {showDataCount && (
         <div className="text-sm text-gray-700">
-          {dataCountText.showing} {startItem} - {endItem} {dataCountText.of} {pagination.totalItems} {dataCountText.data}
+          {dataCountText.showing} {endItem} {dataCountText.of} {pagination.totalItems} {dataCountText.data}
         </div>
       )}
 
