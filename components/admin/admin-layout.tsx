@@ -41,7 +41,7 @@ export default function AdminPanelLayout({
         <div className="p-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             {title && (
-              <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
+              <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">{title}</h1>
             )}
 
             {showSearch && (

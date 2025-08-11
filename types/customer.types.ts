@@ -1,3 +1,4 @@
+import z from "zod";
 import { Package } from "./package.types";
 
 export type Customer = {
@@ -76,3 +77,41 @@ enum status {
     ACTIVE = "ACTIVE",
     INACTIVE = "INACTIVE"
 }
+
+const photoSchema = z.object({
+  type: z.string().min(1, 'Jenis foto harus diisi'),
+});
+
+const documentSchema = z.object({
+  type: z.string().min(1, { message: 'Jenis dokumen wajib diisi' }),
+  id: z.string().optional(),
+});
+
+export const createCustomerSchema = z.object({
+  name: z.string().min(3, 'Nama minimal 3 karakter'),
+  phone: z.string().min(10, 'Nomor telepon minimal 10 karakter').optional(),
+  email: z.string().email('Email tidak valid').optional(),
+  nik: z.string().min(16, 'NIK harus 16 karakter').optional(),
+  package_id: z.string().min(1, 'Package ID harus diisi'),
+  address_service: z.string().min(10, 'Alamat minimal 10 karakter'),
+  address: z.string().min(10, 'Alamat minimal 10 karakter'),
+  package_name: z.string().optional(),
+  package_speed: z.string().optional(),
+  package_price: z.number().optional(),
+  ip_address: z.string().ipv4('Alamat IP tidak valid').optional(),
+  lat: z.string().optional(),
+  long: z.string().optional(),
+  birth_date: z.preprocess((arg) => {
+    if (!arg || arg === '') return undefined;
+    const date = new Date(String(arg));
+    return isNaN(date.getTime()) ? undefined : date;
+  }, z.date().optional()),
+  birth_place: z.string().optional(),
+  mac_address: z.string().min(12, 'MAC address minimal 12 karakter').optional(),
+  notes: z.string().optional(),
+    documents: z.array(documentSchema).optional().default([]),
+  photos: z.array(photoSchema).optional().default([]),
+});
+
+export type CreateCustomerFormData = z.infer<typeof createCustomerSchema>;
+

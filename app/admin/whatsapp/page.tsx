@@ -346,7 +346,6 @@ const WhatsAppAuthPage = () => {
                         value={qrCode}
                         size={200}
                         level="H"
-                        className="rounded-lg"
                       />
                     </div>
 

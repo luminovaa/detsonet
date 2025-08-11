@@ -15,6 +15,8 @@ import { RoleBadge } from "@/components/admin/role-badge";
 import { authService } from "@/api/auth.api";
 import { ChangePasswordDialog } from "./_components/change-password";
 import { getInitials } from "@/utils/get-initial";
+import { ToggleTheme } from "@/components/layout/toogle-theme";
+import { ThemeSettingsCard } from "./_components/settings";
 
 function ProfilePage() {
   const router = useRouter();
@@ -27,14 +29,14 @@ function ProfilePage() {
       try {
         setLoading(true);
         setError(null);
-        
+
         console.log("ProfilePage: Getting current user...");
         const authMe = await authService.getCurrentUser();
-        
+
         if (!authMe || !authMe.id) {
           throw new Error("No user data received");
         }
-        
+
         console.log("ProfilePage: Getting user details...");
         const userData = await getUserById(authMe.id);
 
@@ -45,7 +47,11 @@ function ProfilePage() {
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        setError(error instanceof Error ? error.message : "Failed to fetch user profile");
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch user profile"
+        );
       } finally {
         setLoading(false);
       }
@@ -55,9 +61,7 @@ function ProfilePage() {
   }, []);
 
   if (loading) {
-    return (
-      <Loading/>
-    );
+    return <Loading />;
   }
 
   if (error || !userProfile) {
@@ -71,7 +75,9 @@ function ProfilePage() {
                 <p className="text-lg font-semibold">Error Loading Profile</p>
                 <p className="text-sm text-gray-600">{error}</p>
               </div>
-              <Button onClick={() => window.location.reload()}>Try Again</Button>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -102,12 +108,14 @@ function ProfilePage() {
                   <h2 className="text-xl font-semibold">
                     {userProfile.profile?.full_name || userProfile.username}
                   </h2>
-                 <RoleBadge role={userProfile.role} />
+                  <RoleBadge role={userProfile.role} />
                 </div>
 
                 <Button
                   className="w-full"
-                  onClick={() => router.push(`/admin/profile/edit/${userProfile.id}`)}
+                  onClick={() =>
+                    router.push(`/admin/profile/edit/${userProfile.id}`)
+                  }
                 >
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Profile
@@ -180,6 +188,9 @@ function ProfilePage() {
               </div>
             </CardContent>
           </Card>
+          <div className="lg:col-span-3">
+            <ThemeSettingsCard />
+          </div>
         </div>
       </div>
     </AdminPanelLayout>

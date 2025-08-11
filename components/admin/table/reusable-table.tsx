@@ -72,7 +72,7 @@ export function DataTable<T extends Record<string, any>>({
         <div className="relative">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-100">
+              <TableRow className="bg-gray-100 dark:bg-gray-800">
                 {showIndex && (
                   <TableHead className="w-16 text-center">No</TableHead>
                 )}
@@ -91,10 +91,10 @@ export function DataTable<T extends Record<string, any>>({
                 data.map((item, index) => (
                   <TableRow 
                     key={index} 
-                    className="hover:bg-gray-50 group transition-colors duration-200"
+                    className="hover:bg-gray-50  dark:hover:bg-gray-700 group transition-colors duration-200"
                   >
                     {showIndex && (
-                      <TableCell className="text-center font-medium text-gray-500">
+                      <TableCell className="text-center font-medium text-gray-500 dark:text-gray-400">
                         {indexStartFrom + index}
                       </TableCell>
                     )}
