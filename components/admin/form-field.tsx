@@ -21,6 +21,7 @@ import { FieldPath, FieldValues, UseFormReturn } from "react-hook-form";
 
 import { ReactNode } from "react";
 import { formatCurrency, parseCurrency } from "@/utils/format-currency";
+import { DatePicker } from "../ui/date-picker";
 
 type FormFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -69,7 +70,12 @@ export function FormField<
         <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            {type === "textarea" ? (
+            {type === "date" ? (
+              <DatePicker
+                value={field.value ?? ""}
+                onChange={(date) => field.onChange(date)}
+              />
+            ) : type === "textarea" ? (
               <Textarea
                 placeholder={placeholder}
                 disabled={disabled}

@@ -25,6 +25,17 @@ export type Customer_Document = {
     customer?: Customer;
 }
 
+export type DocumentData = {
+  type: string;
+  file?: File;
+}
+
+export type PhotoData = {
+  type: string;
+  file?: File;
+}
+
+
 export type Service_Connection = {
     id?: string;
     customer_id: string;
@@ -91,25 +102,20 @@ export const createCustomerSchema = z.object({
   name: z.string().min(3, 'Nama minimal 3 karakter'),
   phone: z.string().min(10, 'Nomor telepon minimal 10 karakter').optional(),
   email: z.string().email('Email tidak valid').optional(),
-  nik: z.string().min(16, 'NIK harus 16 karakter').optional(),
+  nik: z.string().min(16, 'NIK harus 16 karakter'),
   package_id: z.string().min(1, 'Package ID harus diisi'),
   address_service: z.string().min(10, 'Alamat minimal 10 karakter'),
   address: z.string().min(10, 'Alamat minimal 10 karakter'),
-  package_name: z.string().optional(),
-  package_speed: z.string().optional(),
-  package_price: z.number().optional(),
-  ip_address: z.string().ipv4('Alamat IP tidak valid').optional(),
   lat: z.string().optional(),
   long: z.string().optional(),
-  birth_date: z.preprocess((arg) => {
-    if (!arg || arg === '') return undefined;
-    const date = new Date(String(arg));
+  birth_date: z.union([z.string(), z.date()]).optional().transform(val => {
+    if (!val) return undefined;
+    const date = new Date(val);
     return isNaN(date.getTime()) ? undefined : date;
-  }, z.date().optional()),
+  }),
   birth_place: z.string().optional(),
-  mac_address: z.string().min(12, 'MAC address minimal 12 karakter').optional(),
   notes: z.string().optional(),
-    documents: z.array(documentSchema).optional().default([]),
+  documents: z.array(documentSchema).optional().default([]),
   photos: z.array(photoSchema).optional().default([]),
 });
 
